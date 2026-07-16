@@ -6,6 +6,7 @@ import './App.css'
 
 import { NASAInfo } from './custom/NASAInfo'
 import { Component1 } from './custom/Component1'
+import { CosmoQuery } from './form/QueryForm'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -13,7 +14,7 @@ function App() {
   return (
     <>
       <section id="center">
-        <NASAInfo/>
+        <CosmoQuery/>
       </section>
 
       <div className="ticks"></div>
