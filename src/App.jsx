@@ -1,23 +1,19 @@
+import React from 'react';
+import { CosmoQuery } from './form/QueryForm'
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
 import './App.css'
 
-import { NASAInfo } from './custom/NASAInfo'
-import { Component1 } from './custom/Component1'
-import { CosmoQuery } from './form/QueryForm'
+export const APIDataContext = React.createContext();
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [apiData, setAPIData] = useState([]);
+  const val = {apiData, setAPIData};
 
   return (
-    <>
-      <section id="center">
-        <CosmoQuery/>
-      </section>
-    </>
+    <APIDataContext.Provider value={val}>
+      <CosmoQuery/>
+    </APIDataContext.Provider>
   )
 }
 
-export default App
+export default App;

@@ -1,17 +1,33 @@
-import { useState, useEffect } from 'react'
-import { QueryType } from '../model/queryType'
-import React from 'react';
+import { useState, useEffect, useContext } from 'react';
+import { QueryType } from '../model/queryType';
+import { journalEntry } from "../model/journalEntry";
 import DatePicker from 'react-datepicker';
+import NASALogo from '../assets/nasa.svg';
+import { APIDataContext } from '../App';
+import { getMultiple, getSpecific, getRandom } from "../services/dataHandler";
+
+import './QueryForm.css'
 
 export function CosmoQuery() {
     const [queryType, setQueryType] = useState(QueryType.Today);
     const [startDate, setStardDate] = useState(new Date());
     const [endDate, setEndDate] = useState(new Date());
-    const [count, setCount] = useState(0);
+    const [count, setCount] = useState(1);
+    const [errorMesg, setErrorMesg] = useState("");
+    const {apiData, setAPIData} = useContext(APIDataContext);
+
+    useEffect(() => {
+        console.log(errorMesg);
+        // TODO: Add error message and submit disable until changes are made
+    }, [errorMesg]);
 
     function changeQueryType(value: string) {
         setQueryType(value as QueryType);
         console.log(value);
+    }
+
+    function decreasePossible() {
+        return !(count > 1);
     }
 
     function decreaseCount() {
@@ -22,6 +38,38 @@ export function CosmoQuery() {
         setCount(count + 1);
     }
 
+    async function prepareAndSendQuery() {
+        if (startDate >= new Date()) {
+            setErrorMesg("Invalid Start Date!");
+            return;
+        }
+
+        if (endDate > startDate || endDate >= new Date()) {
+            setErrorMesg("Invalid End Date!");
+            return;
+        }
+
+        if (count < 1) {
+            setErrorMesg("Counter value should be greater than zero!");
+            return;
+        }
+
+        let data: journalEntry[];
+
+        switch(queryType) {
+        case QueryType.Today:
+            data = [await getSpecific(new Date().toISOString().slice(0, 10))];
+        case QueryType.Date:
+            data = [await getSpecific(startDate.toISOString().slice(0, 10))];
+        case QueryType.Interval:
+            data = await getMultiple(startDate.toISOString().slice(0, 10), endDate.toISOString().slice(0, 10));
+        case QueryType.Random:
+            data = await getRandom(count);
+        }
+
+        setAPIData(data);
+    }
+
     function Fields() {
         switch (queryType) {
         case QueryType.Date:
@@ -29,7 +77,7 @@ export function CosmoQuery() {
                 <div>
                     <label>
                         Querying for
-                        <DatePicker selected={startDate} onChange={(newStartDate) => setStardDate(newStartDate)} />
+                        <DatePicker selected={startDate} onChange={(newStartDate) => {setStardDate(newStartDate); console.log(newStartDate)}} />
                     </label>
                 </div>
             );
@@ -49,7 +97,7 @@ export function CosmoQuery() {
         case QueryType.Random:
             return (
                 <div>
-                    <button type="button" onClick={decreaseCount}>-</button>
+                    <button type="button" disabled={decreasePossible()} onClick={decreaseCount}>-</button>
                     <button type="button" onClick={increaseCount}>+</button>
                     <label>{count} random elements</label>
                 </div>
@@ -60,17 +108,23 @@ export function CosmoQuery() {
     }
 
     return(
-        <form>
-            <label>
-                Query type
-                <select name="selectedQueryType" value={queryType} onChange={ev => changeQueryType(ev.target.value)}>
-                    <option value={QueryType.Today}>{QueryType.Today}</option>
-                    <option value={QueryType.Date}>{QueryType.Date}</option>
-                    <option value={QueryType.Interval}>{QueryType.Interval}</option>
-                    <option value={QueryType.Random}>{QueryType.Random}</option>
-                </select>
-            </label>
-            <Fields/>
-        </form>
+        <div id="QueryForm">
+            <img src={NASALogo} className="icon" height="360" alt="NASA logo"/>
+            <form>
+                <label>
+                    Query type
+                    <select name="selectedQueryType" value={queryType} onChange={ev => changeQueryType(ev.target.value)}>
+                        <option value={QueryType.Today}>{QueryType.Today}</option>
+                        <option value={QueryType.Date}>{QueryType.Date}</option>
+                        <option value={QueryType.Interval}>{QueryType.Interval}</option>
+                        <option value={QueryType.Random}>{QueryType.Random}</option>
+                    </select>
+                </label>
+                <Fields/>
+                <button type="button" onClick={prepareAndSendQuery}>
+                    Submit query to Cosmo!
+                </button>
+            </form>
+        </div>
     );
 }
