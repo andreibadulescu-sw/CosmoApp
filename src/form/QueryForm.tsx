@@ -6,6 +6,7 @@ import NASALogo from '../assets/nasa.svg';
 import { APIDataContext } from '../App';
 import { getMultiple, getSpecific, getRandom } from "../services/dataHandler";
 
+import "react-datepicker/dist/react-datepicker.css";
 import './QueryForm.css'
 
 export function CosmoQuery() {
@@ -44,7 +45,7 @@ export function CosmoQuery() {
             return;
         }
 
-        if (endDate > startDate || endDate >= new Date()) {
+        if (endDate < startDate || endDate >= new Date()) {
             setErrorMesg("Invalid End Date!");
             return;
         }
@@ -59,14 +60,19 @@ export function CosmoQuery() {
         switch(queryType) {
         case QueryType.Today:
             data = [await getSpecific(new Date().toISOString().slice(0, 10))];
+            break;
         case QueryType.Date:
             data = [await getSpecific(startDate.toISOString().slice(0, 10))];
+            break;
         case QueryType.Interval:
             data = await getMultiple(startDate.toISOString().slice(0, 10), endDate.toISOString().slice(0, 10));
+            break;
         case QueryType.Random:
             data = await getRandom(count);
+            break;
         }
 
+        console.log("Data received! Sending it to the main page...");
         setAPIData(data);
     }
 
@@ -77,7 +83,7 @@ export function CosmoQuery() {
                 <div>
                     <label>
                         Querying for
-                        <DatePicker selected={startDate} onChange={(newStartDate) => {setStardDate(newStartDate); console.log(newStartDate)}} />
+                        <DatePicker selected={startDate} onChange={(newStartDate) => {setStardDate(newStartDate); console.log(newStartDate)}} dateFormat={"dd-MM-YYYY"} />
                     </label>
                 </div>
             );
@@ -86,11 +92,12 @@ export function CosmoQuery() {
                 <div>
                     <label>
                         Query interval starts
-                        <DatePicker selected={startDate} onChange={(newStartDate) => setStardDate(newStartDate)} />
+                        <DatePicker selected={startDate} onChange={(newStartDate) => setStardDate(newStartDate)} dateFormat={"dd-MM-YYYY"} />
                     </label>
+                    <br/>
                     <label>
                         Query interval ends
-                        <DatePicker selected={endDate} onChange={(newEndDate) => setEndDate(newEndDate)} />
+                        <DatePicker selected={endDate} onChange={(newEndDate) => setEndDate(newEndDate)} dateFormat={"dd-MM-YYYY"} />
                     </label>
                 </div>
             );

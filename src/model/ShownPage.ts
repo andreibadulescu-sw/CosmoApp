@@ -1,0 +1,4 @@
+enum ShownPage {
+  cosmoquery,
+  resultviewer
+};
