@@ -18,6 +18,7 @@ export function CosmoQuery() {
                     <option value={QueryType.Today}>{QueryType.Today}</option>
                     <option value={QueryType.Date}>{QueryType.Date}</option>
                     <option value={QueryType.Interval}>{QueryType.Interval}</option>
+                    <option value={QueryType.Random}>{QueryType.Random}</option>
                 </select>
             </label>
         </form>
