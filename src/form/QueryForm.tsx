@@ -7,7 +7,6 @@ import { APIDataContext } from '../App';
 import { getMultiple, getSpecific, getRandom } from "../services/dataHandler";
 
 import "react-datepicker/dist/react-datepicker.css";
-import './QueryForm.css'
 
 export function CosmoQuery() {
     const [queryType, setQueryType] = useState(QueryType.Today);
